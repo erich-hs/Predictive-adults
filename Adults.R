@@ -38,6 +38,7 @@ adults$ocupation <- factor(adults$ocupation,
 adults$native.country <- factor(adults$native.country,
                                 levels = c(names(table(adults$native.country))[-1])) # Removing "?" values and assigning as NA
 
+# Converting income to binary variable
 adults[adults$income == '<=50K', 'income'] <- 0
 adults[adults$income == '>50K', 'income'] <- 1
 adults$income <- as.integer(adults$income)
@@ -56,4 +57,27 @@ vis_miss(adults[ , categorical])
 gg_miss_upset(adults[c('workclass', 'ocupation', 'native.country')]) # Missing values for workclass and ocupation variables are (mostly) from the same individuals
 
 ## Screening numeric variables
-summary(adults[ , numeric])
+summary(adults[ , numeric]) # capital.gain probably has missing values as '99,999'
+
+ggplot(adults, aes(age)) + geom_histogram()
+ggplot(adults, aes(race, age)) + geom_boxplot()
+
+ggplot(adults, aes(fnlwgt)) + geom_histogram()
+ggplot(adults, aes(race, fnlwgt)) + geom_boxplot()
+
+ggplot(adults, aes(capital.gain)) + geom_histogram()
+ggplot(adults, aes(race, capital.gain)) + geom_boxplot()
+table(adults[adults$capital.gain > 90000, 'capital.gain']) # 244 observations with 99,999 values
+adults[adults$capital.gain == 99999, 'capital.gain'] <- NA # Assigned NA to 99,999 observations
+table(adults[adults$capital.gain == 0, 'capital.gain']) # 44,807 observations with capital.gain = 0, or 91.74% of the dataset
+
+ggplot(adults, aes(capital.loss)) + geom_histogram()
+ggplot(adults, aes(race, capital.loss)) + geom_boxplot()
+table(adults[adults$capital.loss == 0, 'capital.loss']) # 46,560 observations with capital.loss = 0, or 95.33% of the dataset
+
+ggplot(adults, aes(hours.per.week)) + geom_histogram()
+ggplot(adults, aes(race, hours.per.week)) + geom_boxplot()
+
+# Missing values
+vis_miss(adults[ , numeric])
+use_github(protocol = 'https')
