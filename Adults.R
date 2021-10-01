@@ -68,7 +68,7 @@ ggplot(adults, aes(race, fnlwgt)) + geom_boxplot()
 ggplot(adults, aes(capital.gain)) + geom_histogram()
 ggplot(adults, aes(race, capital.gain)) + geom_boxplot()
 table(adults[adults$capital.gain > 90000, 'capital.gain']) # 244 observations with 99,999 values
-adults[adults$capital.gain == 99999, 'capital.gain'] <- NA # Assigned NA to 99,999 observations
+adults[adults$capital.gain == 99999, 'capital.gain'] <- NA # Assigned NA to rows with 99,999 values
 table(adults[adults$capital.gain == 0, 'capital.gain']) # 44,807 observations with capital.gain = 0, or 91.74% of the dataset
 
 ggplot(adults, aes(capital.loss)) + geom_histogram()
