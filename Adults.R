@@ -80,4 +80,3 @@ ggplot(adults, aes(race, hours.per.week)) + geom_boxplot()
 
 # Missing values
 vis_miss(adults[ , numeric])
-use_github(protocol = 'https')
