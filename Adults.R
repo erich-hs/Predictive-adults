@@ -80,3 +80,29 @@ ggplot(adults, aes(race, hours.per.week)) + geom_boxplot()
 
 # Missing values
 vis_miss(adults[ , numeric])
+
+# Tests
+library(dplyr)
+group_by(adults, sex) %>%
+  summarise(
+    count = n(),
+    mean = mean(hours.per.week, na.rm = TRUE),
+    sd = sd(hours.per.week, na.rm = TRUE)
+  )
+
+ggboxplot(adults, x = "sex", y = "hours.per.week", 
+          color = "sex", palette = c("#00AFBB", "#E7B800"),
+          ylab = "hours.per.week", xlab = "sex")
+str(adults)
+
+# Compute t test
+res <- t.test(hours.per.week ~ sex, data = adults, var.equal = TRUE)
+res
+
+# chisquare test for independence
+chisq.test(adults$sex, adults$native.country)
+chisq.test(adults$sex, adults$race)
+chisq.test(adults$ocupation, adults$sex)
+chisq.test(adults$relationship, adults$sex)
+chisq.test(adults$workclass, adults$native.country)
+
