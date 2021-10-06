@@ -96,8 +96,10 @@ ggboxplot(adults, x = "sex", y = "hours.per.week",
 str(adults)
 
 # Compute t test
-res <- t.test(hours.per.week ~ sex, data = adults, var.equal = TRUE)
-res
+var.test(hours.per.week ~ sex, data = adults) # Test for Homescedasticity - Variances ratio = 0.97
+t.test(hours.per.week ~ sex, data = adults, var.equal = FALSE)
+var.test(as.numeric(education) ~ sex, data = adults) # Test for Homescedasticity - Variances ratio = 0.89
+t.test(as.numeric(education) ~ sex, data = adults, var.equal = FALSE)
 
 # chisquare test for independence
 chisq.test(adults$sex, adults$native.country)
@@ -105,4 +107,3 @@ chisq.test(adults$sex, adults$race)
 chisq.test(adults$ocupation, adults$sex)
 chisq.test(adults$relationship, adults$sex)
 chisq.test(adults$workclass, adults$native.country)
-
