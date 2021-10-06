@@ -95,14 +95,24 @@ ggboxplot(adults, x = "sex", y = "hours.per.week",
           ylab = "hours.per.week", xlab = "sex")
 str(adults)
 
-# Compute t test
-res <- t.test(hours.per.week ~ sex, data = adults, var.equal = TRUE)
+# Compute t test for hours per week and income
+var.test(adults$hours.per.week ~ adults$income) # there is no significant difference between the two 
+
+res <- t.test(hours.per.week ~ income, data = adults, var.equal = TRUE)
 res
 
 # chisquare test for independence
-chisq.test(adults$sex, adults$native.country)
-chisq.test(adults$sex, adults$race)
-chisq.test(adults$ocupation, adults$sex)
-chisq.test(adults$relationship, adults$sex)
-chisq.test(adults$workclass, adults$native.country)
+# chisq.test(adults$sex, adults$native.country)
+# chisq.test(adults$sex, adults$race)
+# chisq.test(adults$ocupation, adults$sex)
+# chisq.test(adults$relationship, adults$sex)
+# chisq.test(adults$workclass, adults$native.country)
+
+chisq.test(adults$income, adults$sex)
+chisq.test(adults$income, adults$native.country)
+chisq.test(adults$income, adults$race)
+chisq.test(adults$income, adults$relationship)
+chisq.test(adults$income, adults$workclass)
+chisq.test(adults$income, adults$ocupation)
+chisq.test(adults$income, adults$marital.status)
 
