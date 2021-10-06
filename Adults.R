@@ -95,7 +95,6 @@ ggboxplot(adults, x = "sex", y = "hours.per.week",
           ylab = "hours.per.week", xlab = "sex")
 str(adults)
 
-<<<<<<< HEAD
 # Compute t test
 var.test(hours.per.week ~ sex, data = adults) # Test for Homescedasticity - Variances ratio = 0.97
 t.test(hours.per.week ~ sex, data = adults, var.equal = FALSE)
@@ -108,26 +107,45 @@ chisq.test(adults$sex, adults$race)
 chisq.test(adults$ocupation, adults$sex)
 chisq.test(adults$relationship, adults$sex)
 chisq.test(adults$workclass, adults$native.country)
-=======
+
 # Compute t test for hours per week and income
 var.test(adults$hours.per.week ~ adults$income) # there is no significant difference between the two 
 
 res <- t.test(hours.per.week ~ income, data = adults, var.equal = TRUE)
 res
 
-# chisquare test for independence
-# chisq.test(adults$sex, adults$native.country)
-# chisq.test(adults$sex, adults$race)
-# chisq.test(adults$ocupation, adults$sex)
-# chisq.test(adults$relationship, adults$sex)
-# chisq.test(adults$workclass, adults$native.country)
+# Chisquare test for independence
+chisq1 <- chisq.test(adults$income, adults$sex)
+chisq1
+chisq1$observed
+chisq1$residuals
 
-chisq.test(adults$income, adults$sex)
-chisq.test(adults$income, adults$native.country)
-chisq.test(adults$income, adults$race)
-chisq.test(adults$income, adults$relationship)
-chisq.test(adults$income, adults$workclass)
-chisq.test(adults$income, adults$ocupation)
-chisq.test(adults$income, adults$marital.status)
+chisq2 <- chisq.test(adults$income, adults$native.country)
+chisq2
+chisq2$observed
+round(chisq2$residuals, 3)
 
->>>>>>> 986b8b6355aba8d6eb77746e7731cdf438b6d59e
+chisq3 <- chisq.test(adults$income, adults$race)
+chisq3
+chisq3$observed
+chisq3$residuals
+
+chisq4 <- chisq.test(adults$income, adults$relationship)
+chisq4
+chisq4$observed
+chisq4$residuals
+
+chisq5 <- chisq.test(adults$income, adults$workclass)
+chisq5
+chisq5$observed
+chisq5$residuals
+
+chisq6 <- chisq.test(adults$income, adults$ocupation)
+chisq6
+chisq6$observed
+chisq6$residuals
+
+chisq7 <- chisq.test(adults$income, adults$marital.status)
+chisq7
+chisq7$observed
+chisq7$residuals
