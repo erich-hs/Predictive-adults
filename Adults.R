@@ -1,5 +1,5 @@
 pacman::p_load(tidyverse, olsrr, forecast, corrr, caret, GGally,
-               lmtest, car, rsample, class, lime, reshape2, ggpubr)
+               lmtest, car, rsample, class, lime, reshape2, ggpubr, dplyr)
 
 setwd('~/R/DANA-4820/Project/Predictive-adults')
 ### Further dataset description found at: https://www.rdocumentation.org/packages/arules/versions/1.6-8/topics/Adult ###
@@ -90,11 +90,13 @@ group_by(adults, sex) %>%
     sd = sd(hours.per.week, na.rm = TRUE)
   )
 
+# Initial Statistical Tests  ----------------------------------------------
 ggboxplot(adults, x = "sex", y = "hours.per.week", 
           color = "sex", palette = c("#00AFBB", "#E7B800"),
           ylab = "hours.per.week", xlab = "sex")
 str(adults)
 
+head(adults)
 # Compute t test
 var.test(hours.per.week ~ sex, data = adults) # Test for Homescedasticity - Variances ratio = 0.97
 t.test(hours.per.week ~ sex, data = adults, var.equal = FALSE)
@@ -109,10 +111,15 @@ chisq.test(adults$relationship, adults$sex)
 chisq.test(adults$workclass, adults$native.country)
 
 # Compute t test for hours per week and income
+var.test(adults$age ~ adults$income)
+
+res1 <- t.test(adults$age ~ adults$income)
+res1 
+
 var.test(adults$hours.per.week ~ adults$income) # there is no significant difference between the two 
 
-res <- t.test(hours.per.week ~ income, data = adults, var.equal = TRUE)
-res
+res2 <- t.test(hours.per.week ~ income, data = adults, var.equal = TRUE)
+res2
 
 # Chisquare test for independence
 chisq1 <- chisq.test(adults$income, adults$sex)
@@ -149,3 +156,14 @@ chisq7 <- chisq.test(adults$income, adults$marital.status)
 chisq7
 chisq7$observed
 chisq7$residuals
+
+# Divide data based on income greater or less than 50G
+more.than.50 <- adults %>%
+  group_by(income = '1')
+View(more.than.50)
+
+less.than.50 <- adults %>%
+  group_by(income = '0')
+
+
+
