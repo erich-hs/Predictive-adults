@@ -157,13 +157,46 @@ chisq7
 chisq7$observed
 chisq7$residuals
 
+adults$income <- factor(adults$income)
+
 # Divide data based on income greater or less than 50G
-more.than.50 <- adults %>%
-  group_by(income = '1')
-View(more.than.50)
+more.than.50 <- adults %>% 
+  filter(income == '1')
 
-less.than.50 <- adults %>%
-  group_by(income = '0')
+more.than.50$income <- factor(more.than.50$income)
+  
+  less.than.50 <- adults %>%
+    filter(income == '0')
+  
+less.than.50$income <- factor(less.than.50$income)
+  
+more.than.50 %>% select(income, sex) %>% summary()
+less.than.50 %>% select(income, sex) %>% summary()
 
 
+# Comparative Statistical Tests -------------------------------------------
+# Variance tests conducted on both samples
+var.test(more.than.50$hours.per.week ~ more.than.50$sex) # variance test for hours.per.week vs. sex for adults who earned more than 50k
+var.test(less.than.50$age ~ less.than.50$sex) # variance test for age vs. sex for adults who earned less than 50k  
 
+t.test.50.more.hpw.sex<- t.test(hours.per.week ~ sex, data = more.than.50, var.equal = TRUE)
+t.test.50.less.hpw.sex<- t.test(hours.per.week ~ sex, data = less.than.50, var.equal = TRUE)
+
+t.test.50.more.age.sex<- t.test(age ~ sex, data = more.than.50, var.equal = TRUE)
+t.test.50.less.age.sex<- t.test(age ~ sex, data = less.than.50, var.equal = TRUE)
+
+# Conducted t-tests on both samples
+t.test.50.less.hpw.sex #t-test for hours.per.week and sex for adults who earned less than 50k
+t.test.50.more.hpw.sex #t-test for hours.per.week and sex for adults who earned more than 50k
+
+t.test.50.less.age.sex #t-test for age and sex for adults who earned less than 50k
+t.test.50.more.age.sex #t-test for age and sex for adults who earned more than 50k
+
+# Chi-sqaured test 
+chisq8 <- chisq.test(more.than.50$sex, more.than.50$hours.per.week)
+chisq8$observed
+chisq8$residuals
+
+chisq9 <- chisq.test(less.than.50$sex, less.than.50$hours.per.week)
+chisq9$observed
+chisq9$residuals
