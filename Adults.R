@@ -200,3 +200,52 @@ chisq8$residuals
 chisq9 <- chisq.test(less.than.50$sex, less.than.50$hours.per.week)
 chisq9$observed
 chisq9$residuals
+
+##### Purposeful Selection Process #####
+# Step 1 - Defining individual explanatory variables
+attach(adults)
+y <- income
+model1 <- glm(y ~ age, family = binomial(link = 'logit'))
+summary(model1)
+pchisq(2537, 1, lower.tail = FALSE)
+model2 <- glm(y ~ sex, family = binomial(link = 'logit'))
+summary(model2)
+pchisq(2485, 1, lower.tail = FALSE)
+model3 <- glm(y ~ hours.per.week, family = binomial(link = 'logit'))
+summary(model3)
+pchisq(2591, 1, lower.tail = FALSE)
+
+# Step 2 - Backwards Elimination
+model4 <- glm(y ~ age + sex, family = binomial(link = 'logit'))
+summary(model4)
+pchisq(2248, 1, lower.tail = FALSE)
+model5 <- glm(y ~ age + hours.per.week, family = binomial(link = 'logit'))
+summary(model5)
+pchisq(2595, 1, lower.tail = FALSE)
+model6 <- glm(y ~ sex + hours.per.week, family = binomial(link = 'logit'))
+summary(model6)
+pchisq(1744, 1, lower.tail = FALSE)
+model7 <- glm(y ~ age + sex + hours.per.week, family = binomial(link = 'logit'))
+summary(model7)
+pchisq(1811, 1, lower.tail = FALSE)
+pchisq(1464, 1, lower.tail = FALSE)
+pchisq(2367, 1, lower.tail = FALSE)
+
+# Step 4 - Checking for Interactions
+model8 <- glm(y ~ age + sex + hours.per.week + age*sex, family = binomial(link = 'logit'))
+summary(model8)
+pchisq(64, 1, lower.tail = FALSE)
+model9 <- glm(y ~ age + sex + hours.per.week + age*hours.per.week, family = binomial(link = 'logit'))
+summary(model9)
+pchisq(7, 1, lower.tail = FALSE)
+model10 <- model10 <- glm(y ~ age + sex + hours.per.week + sex*hours.per.week, family = binomial(link = 'logit'))
+summary(model10)
+pchisq(13, 1, lower.tail = FALSE)
+model11 <- glm(y ~ age + sex + hours.per.week +
+                            age*sex +
+                            age*hours.per.week +
+                            sex*hours.per.week, family = binomial(link = 'logit'))
+summary(model11)
+pchisq(22, 2, lower.tail = FALSE)
+pchisq(79, 2, lower.tail = FALSE)
+pchisq(73, 2, lower.tail = FALSE)
