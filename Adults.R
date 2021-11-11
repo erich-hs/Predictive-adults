@@ -90,8 +90,6 @@ group_by(adults, sex) %>%
     sd = sd(hours.per.week, na.rm = TRUE)
   )
 
-write.csv(adults, "C:/Users/aran_/Desktop/adults.csv", row.names = TRUE)
-
 # Initial Statistical Tests  ----------------------------------------------
 ggboxplot(adults, x = "sex", y = "hours.per.week", 
           color = "sex", palette = c("#00AFBB", "#E7B800"),
@@ -203,6 +201,54 @@ chisq9 <- chisq.test(less.than.50$sex, less.than.50$hours.per.week)
 chisq9$observed
 chisq9$residuals
 
+# Multicolinearity check 
+library(corrr)
+cor.df <- adults %>% select(age, fnlwgt, hours.per.week)
+cor(cor.df)
+
+model_vif <- lm(fnlwgt ~., data = adults) 
+summary(model_vif)
+vif(model_vif)
+# Marital status and relationship status VIF >10 so we are removing marital
+# status
+
+model_vif2 <- lm(fnlwgt ~. -marital.status, data = adults) 
+summary(model_vif2)
+vif(model_vif2)
+# after removing marital status no other variable presented with 
+# VIF >10 
+
+# Interaction terms 
+library(interactions)
+library(ggplot2)
+interaction.plot(adults$education, adults$sex, adults$income)
+interaction.plot(education, income, hours.per.week)
+interaction.plot(adults$ocupation, income, hours.per.week)
+
+model_cat_plot <- lm(hours.per.week ~. -marital.status + education*income, data = adults) 
+
+cat_plot(model_cat_plot, pred = ocupation, modx = income, interval = TRUE)
+
+# Dataset split 
+# 70/30
+library(caTools)
+set.seed(123) # is used so that each time we get the same data set after splitting 
+sample_size<- sample.split(adults, SplitRatio = 7/10) #Splitting the dataset into 70/30 ratio  
+  
+train<-subset(adults, sample_size==T)  
+  
+test<-subset(adults, sample_size==F)  
+  
+nrow(train)  
+  
+nrow(test)
+
+model_test <- lm(hours.per.week ~. -marital.status + education*income, data = test) 
+summary(model_test)
+
+model_test2 <- lm(hours.per.week ~. -marital.status + education, data = test) 
+summary(model_test2)
+
 ##### Purposeful Selection Process #####
 # Step 1 - Defining individual explanatory variables
 attach(adults)
@@ -252,13 +298,20 @@ pchisq(22, 2, lower.tail = FALSE)
 pchisq(79, 2, lower.tail = FALSE)
 pchisq(73, 2, lower.tail = FALSE)
 
+
 # Baseline Model ----------------------------------------------------------
 
 ##### Income based on sex and race 
-library(VGAM)
-model_1 <- vglm(race ~ age + sex + education, family = multinomial, data = adults)
-model_1
-
-model_2 <- vglm(race ~ age + sex, family = multinomial, data = adults)
-model_2
+# library(VGAM)
+# model_1 <- vglm(race ~ sex + income, family = multinomial, data = adults)
+# model_1
+# 
+# model_2 <- vglm(race ~ sex, family = multinomial, data = adults)
+# model_2
+# 
+# pchisq(366.74, 8, lower.tail = FALSE)
+# 
+# str(adults)
+# cor(adults)
+# package - interaction: cat_plot
 
