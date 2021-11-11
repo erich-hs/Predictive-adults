@@ -249,3 +249,13 @@ summary(model11)
 pchisq(22, 2, lower.tail = FALSE)
 pchisq(79, 2, lower.tail = FALSE)
 pchisq(73, 2, lower.tail = FALSE)
+
+# Baseline Model ----------------------------------------------------------
+
+##### Income based on sex and race 
+model_1 <- vglm(income ~ race + sex,refLevel = "1", family = multinomial, data = adults)
+model_
+
+model_2 <- vglm(income ~ sex, family = multinomial, data = adults)
+model_2
+
