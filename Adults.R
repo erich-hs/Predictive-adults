@@ -90,8 +90,6 @@ group_by(adults, sex) %>%
     sd = sd(hours.per.week, na.rm = TRUE)
   )
 
-write.csv(adults, "C:/Users/aran_/Desktop/adults.csv", row.names = TRUE)
-
 # Initial Statistical Tests  ----------------------------------------------
 ggboxplot(adults, x = "sex", y = "hours.per.week", 
           color = "sex", palette = c("#00AFBB", "#E7B800"),
@@ -256,9 +254,11 @@ pchisq(73, 2, lower.tail = FALSE)
 
 ##### Income based on sex and race 
 library(VGAM)
-model_1 <- vglm(race ~ age + sex + education, family = multinomial, data = adults)
+model_1 <- vglm(race ~ sex + income, family = multinomial, data = adults)
 model_1
 
-model_2 <- vglm(race ~ age + sex, family = multinomial, data = adults)
+model_2 <- vglm(race ~ sex, family = multinomial, data = adults)
 model_2
+
+pchisq(366.74, 8)
 
