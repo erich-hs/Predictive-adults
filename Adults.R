@@ -242,11 +242,13 @@ cat_plot(model_cat_plot, pred = ocupation, modx = sex, interval = TRUE, geom = '
 interaction.plot(adults$ocupation, adults$sex, as.numeric(adults$income))
 
 cat_plot(model_cat_plot, pred = relationship, modx = sex, interval = TRUE, geom = 'line')
-ggplot(data = adults, aes(adults$income[, relationship == 'Husband']))+geom_boxplot()
 
+ggplot(data = adults, aes(adults$income[, adults$relationship == 'Husband'])) + geom_boxplot(aes(income)) + geom_boxplot()
 
 interaction.plot(adults$relationship, adults$sex, as.numeric(adults$income))
+
 view(adults)
+
 cat_plot(model_cat_plot, pred = relationship, modx = race, interval = TRUE, geom = 'line')
 interaction.plot(adults$relationship, adults$race, as.numeric(adults$income))
 
@@ -278,6 +280,8 @@ summary(model_test)
 
 model_test2 <- lm(hours.per.week ~. -marital.status + education, data = test) 
 summary(model_test2)
+
+
 
 # Select explanatory variables
 # Backwards elimination without interaction 
