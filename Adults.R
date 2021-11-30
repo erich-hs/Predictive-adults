@@ -226,40 +226,10 @@ interaction.plot(adults$education, adults$sex, as.numeric(adults$income))
 # interaction.plot(adults$ocupation, income, hours.per.week)
 str(adults$income)
 str(as.factor(adults$income))
-model_cat_plot <- glm(as.factor(income) ~. -marital.status, family='binomial',data = adults) 
-model_cat_plot
-
-cat_plot(model_cat_plot, pred = education, modx = sex, interval = TRUE, geom = 'line')
-interaction.plot(adults$education, adults$sex, as.numeric(adults$income))
-
-cat_plot(model_cat_plot, pred = education, modx = race, interval = TRUE, geom = 'line')
-interaction.plot(adults$education, adults$race, as.numeric(adults$income))
-
-cat_plot(model_cat_plot, pred = ocupation, modx = race, interval = TRUE, geom = 'line')
-interaction.plot(adults$ocupation, adults$race, as.numeric(adults$income))
 
 cat_plot(model_cat_plot, pred = ocupation, modx = sex, interval = TRUE, geom = 'line')
 interaction.plot(adults$ocupation, adults$sex, as.numeric(adults$income))
-
-cat_plot(model_cat_plot, pred = relationship, modx = sex, interval = TRUE, geom = 'line')
-
-ggplot(data = adults, aes(adults$income[, adults$relationship == 'Husband'])) + geom_boxplot(aes(income)) + geom_boxplot()
-
-interaction.plot(adults$relationship, adults$sex, as.numeric(adults$income))
-
-view(adults)
-
-cat_plot(model_cat_plot, pred = relationship, modx = race, interval = TRUE, geom = 'line')
-interaction.plot(adults$relationship, adults$race, as.numeric(adults$income))
-
-cat_plot(model_cat_plot, pred = native.country, modx = sex, interval = TRUE, geom = 'line')
-interaction.plot(adults$native.country, adults$sex, as.numeric(adults$income))
-
-cat_plot(model_cat_plot, pred = native.country, modx = race, interval = TRUE, geom = 'line')
-interaction.plot(adults$native.country, adults$race, as.numeric(adults$income))
-
-cat_plot(model_cat_plot, pred = race, modx = sex, interval = TRUE, geom = 'line')
-interaction.plot(adults$race, adults$sex, as.numeric(adults$income))
+# Observable interaction between the occupation and income amoung genders
 
 # Dataset split 
 # 70/30
@@ -274,12 +244,6 @@ test<-subset(adults, sample_size==F)
 nrow(train)  
   
 nrow(test)
-
-model_test <- lm(hours.per.week ~. -marital.status + education*income, data = test) 
-summary(model_test)
-
-model_test2 <- lm(hours.per.week ~. -marital.status + education, data = test) 
-summary(model_test2)
 
 
 
@@ -333,6 +297,14 @@ pchisq(1811, 1, lower.tail = FALSE)
 pchisq(1464, 1, lower.tail = FALSE)
 pchisq(2367, 1, lower.tail = FALSE)
 
+# With interaction
+model.int <- glm(y ~ adults$ocupation + adults$sex, family = binomial(link='logit'), na.action = na.exclude)
+summary(model.int)
+
+# without interaction
+model.non.int <- glm(y ~adults$ocupation, family = binomial(link='logit'), na.action = na.exclude)
+summary(model.non.int)
+
 # Step 4 - Checking for Interactions
 model8 <- glm(y ~ age + sex + hours.per.week + age*sex, family = binomial(link = 'logit'))
 summary(model8)
@@ -352,8 +324,28 @@ pchisq(22, 2, lower.tail = FALSE)
 pchisq(79, 2, lower.tail = FALSE)
 pchisq(73, 2, lower.tail = FALSE)
 
+# Likelihood ratio test 
+require(lmtest)
+lrtest(model.non.int, model.int)
+
+# Anova
+anova(model.non.int, model.int)
+
+# Wald test 
+waldtest(model.non.int, model.int)
+
+# Classification Report on Train  -----------------------------------------
+model.train <- glm(train$income ~ train$ocupation + train$sex, family = binomial(link = 'logit'), na.action = na.exclude())
+summary(model.train)
+
+predictions <- predict(model.train, test, type = 'response')
+
+table_mat <- table(test$income, predictions > 0.5)
+table_mat
 
 # Baseline Model ----------------------------------------------------------
+
+
 
 ##### Income based on sex and race 
 # library(VGAM)
