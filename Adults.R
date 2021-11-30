@@ -221,13 +221,43 @@ vif(model_vif2)
 # Interaction terms 
 library(interactions)
 library(ggplot2)
-interaction.plot(adults$education, adults$sex, adults$income)
-interaction.plot(education, income, hours.per.week)
-interaction.plot(adults$ocupation, income, hours.per.week)
+interaction.plot(adults$education, adults$sex, as.numeric(adults$income))
+# interaction.plot(education, income, hours.per.week)
+# interaction.plot(adults$ocupation, income, hours.per.week)
+str(adults$income)
+str(as.factor(adults$income))
+model_cat_plot <- glm(as.factor(income) ~. -marital.status, family='binomial',data = adults) 
+model_cat_plot
 
-model_cat_plot <- lm(hours.per.week ~. -marital.status + education*income, data = adults) 
+cat_plot(model_cat_plot, pred = education, modx = sex, interval = TRUE, geom = 'line')
+interaction.plot(adults$education, adults$sex, as.numeric(adults$income))
 
-cat_plot(model_cat_plot, pred = ocupation, modx = income, interval = TRUE)
+cat_plot(model_cat_plot, pred = education, modx = race, interval = TRUE, geom = 'line')
+interaction.plot(adults$education, adults$race, as.numeric(adults$income))
+
+cat_plot(model_cat_plot, pred = ocupation, modx = race, interval = TRUE, geom = 'line')
+interaction.plot(adults$ocupation, adults$race, as.numeric(adults$income))
+
+cat_plot(model_cat_plot, pred = ocupation, modx = sex, interval = TRUE, geom = 'line')
+interaction.plot(adults$ocupation, adults$sex, as.numeric(adults$income))
+
+cat_plot(model_cat_plot, pred = relationship, modx = sex, interval = TRUE, geom = 'line')
+ggplot(data = adults, aes(adults$income[, relationship == 'Husband']))+geom_boxplot()
+
+
+interaction.plot(adults$relationship, adults$sex, as.numeric(adults$income))
+view(adults)
+cat_plot(model_cat_plot, pred = relationship, modx = race, interval = TRUE, geom = 'line')
+interaction.plot(adults$relationship, adults$race, as.numeric(adults$income))
+
+cat_plot(model_cat_plot, pred = native.country, modx = sex, interval = TRUE, geom = 'line')
+interaction.plot(adults$native.country, adults$sex, as.numeric(adults$income))
+
+cat_plot(model_cat_plot, pred = native.country, modx = race, interval = TRUE, geom = 'line')
+interaction.plot(adults$native.country, adults$race, as.numeric(adults$income))
+
+cat_plot(model_cat_plot, pred = race, modx = sex, interval = TRUE, geom = 'line')
+interaction.plot(adults$race, adults$sex, as.numeric(adults$income))
 
 # Dataset split 
 # 70/30
@@ -248,6 +278,26 @@ summary(model_test)
 
 model_test2 <- lm(hours.per.week ~. -marital.status + education, data = test) 
 summary(model_test2)
+
+# Select explanatory variables
+# Backwards elimination without interaction 
+# names(adults)
+# model_cat_plot <- lm(hours.per.week ~. -marital.status + education*income, data = adults) 
+# 
+# train = na.omit(train)
+# model_test <- lm(hours.per.week ~. -marital.status, data = train) 
+# 
+# library(MASS)
+# step.model <- stepAIC(model_test, direction = "backward", 
+#                       trace = FALSE)
+# summary(step.model)
+
+# backwards elimiation with interaction
+# model_test2 <- lm(hours.per.week ~. -marital.status + education*income, data = train) 
+# 
+# step.model2 <- stepAIC(model_test2, direction = "backward", 
+#                       trace = FALSE)
+# summary(step.model)
 
 ##### Purposeful Selection Process #####
 # Step 1 - Defining individual explanatory variables
