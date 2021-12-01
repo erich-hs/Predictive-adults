@@ -71,6 +71,14 @@ levels(adults$workclass)
 # Grouping Native Country by United States and Outside United states 
 adults <- adults %>% mutate(native.country = factor(ifelse(native.country == "United-States", "US", "Other countries")))
 
+# Grouping relationship status
+adults <- adults %>%
+  mutate(marital.status = factor(ifelse(marital.status == "Never-married" 
+                                        | marital.status == "Married-spouse-absent", 
+                                        "Not_married", ifelse(marital.status == "Married-AF-spouse" | 
+                                                                marital.status == "Married-civ-spouse", "Married", 
+                                                              ifelse(marital.status == "Separated" | 
+                                                                       marital.status == "Divorced", "Separated", "Widow")))))
 ## Screening numeric variables
 summary(adults[ , numeric]) # capital.gain probably has missing values as '99,999'
 
