@@ -240,7 +240,7 @@ chisq9$residuals
 # Multicolinearity check 
 library(corrr)
 
-model_vif <- glm(income ~. - education, family = binomial('logit'), data = adults)
+model_vif <- glm(income ~. - education + as.numeric(education), family = binomial('logit'), data = adults)
 
 summary(model_vif)
 vif(model_vif)
@@ -248,7 +248,7 @@ vif(model_vif)
 # Marital status and relationship status VIF >10 so we are removing marital
 # status
 
-model_vif2 <- glm(income ~. - education -relationship,
+model_vif2 <- glm(income ~. - education + as.numeric(education) -relationship,
                   family = binomial('logit'), data = adults)
 summary(model_vif2)
 vif(model_vif2)
@@ -417,7 +417,7 @@ library(ResourceSelection)
 hoslem.test(model.int$y, fitted(model.int))
 # Reject Null hypothesis
 
-# Classification Report on Train  -----------------------------------------
+# Classification Report on Train with interactions -----------------------------------------
 library(caret)
 model.train <- glm(income ~ . -relationship -education +marital.status*sex,
                    family = binomial(link = 'logit'), data = train)
@@ -444,6 +444,36 @@ library(ROCR)
 ROCRpred <- prediction(predictions, test$income)
 ROCRperf <- performance(ROCRpred, 'tpr', 'fpr')
 plot(ROCRperf, colorize = TRUE, text.adj = c(-0.2, 1.7))
+
+
+# Classification report on train for model without interactions -----------
+
+library(caret)
+model.train.noint <- glm(income ~ . -relationship -education,
+                         family = binomial(link = 'logit'), data = train)
+summary(model.train.noint)
+
+predictions.noint <- predict(model.train.noint, test, type = 'response')
+
+# confusion matrix
+table_mat.noint <- table(test$income, predictions.noint > 0.5)
+table_mat.noint
+
+# Accuracy test 
+accuracy_Test.noint <- sum(diag(table_mat.noint)) / sum(table_mat.noint)
+accuracy_Test.noint
+
+model_spec.noint <- table_mat.noint[1, 1]/sum(table_mat.noint[1,1], table_mat.noint[1,2])
+model_spec.noint
+
+model_sens.noint <- table_mat.noint[2, 2]/sum(table_mat.noint[2,2], table_mat.noint[2,1])
+model_sens.noint
+
+# ROC curve
+library(ROCR)
+ROCRpred.noint <- prediction(predictions.noint, test$income)
+ROCRperf.noint <- performance(ROCRpred.noint, 'tpr', 'fpr')
+plot(ROCRperf.noint, colorize = TRUE, text.adj = c(-0.2, 1.7))
 
 
 # Baseline Model ----------------------------------------------------------
