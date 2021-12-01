@@ -43,6 +43,7 @@ adults[adults$income == '<=50K', 'income'] <- 0
 adults[adults$income == '>50K', 'income'] <- 1
 adults$income <- as.integer(adults$income)
 
+char <- sapply(adults, is.factor)
 adults$marital.status <- as.factor(adults$marital.status)
 adults$relationship <- as.factor(adults$relationship)
 adults$race <- as.factor(adults$race)
@@ -66,6 +67,9 @@ adults$ocupation <- droplevels(adults$ocupation)
 adults$workclass <- droplevels(adults$workclass)
 levels(adults$ocupation)
 levels(adults$workclass)
+
+# Grouping Native Country by United States and Outside United states 
+adults <- adults %>% mutate(native.country = factor(ifelse(native.country == "United-States", "US", "Other countries")))
 
 ## Screening numeric variables
 summary(adults[ , numeric]) # capital.gain probably has missing values as '99,999'
