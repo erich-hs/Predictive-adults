@@ -58,8 +58,14 @@ gg_miss_upset(adults[c('workclass', 'ocupation', 'native.country')]) # Missing v
 
 ## Grouping Armed Forces with Other-services
 adults$ocupation[adults$ocupation == 'Armed-Forces'] <- 'Other-service'
+adults$ocupation[adults$ocupation == 'Priv-house-serv'] <- 'Other-service'
+adults <- adults[adults$workclass != 'Never-worked', ] 
+adults <- adults[adults$workclass != 'Without-pay', ] 
+
 adults$ocupation <- droplevels(adults$ocupation) 
+adults$workclass <- droplevels(adults$workclass)
 levels(adults$ocupation)
+levels(adults$workclass)
 
 ## Screening numeric variables
 summary(adults[ , numeric]) # capital.gain probably has missing values as '99,999'
@@ -208,13 +214,12 @@ chisq9$residuals
 
 # Multicolinearity check 
 library(corrr)
-cor.df <- adults %>% select(age, fnlwgt, hours.per.week)
-cor(cor.df)
 
 model_vif <- glm(income ~., family = binomial('logit'), data = adults)
 
 summary(model_vif)
 vif(model_vif)
+
 # Marital status and relationship status VIF >10 so we are removing marital
 # status
 
@@ -269,7 +274,7 @@ interaction.plot(adults$ocupation, adults$sex, as.numeric(adults$income), plot.p
 # Dataset split 
 # 70/30
 library(caTools)
-set.seed(123) # is used so that each time we get the same data set after splitting 
+set.seed(1000) # is used so that each time we get the same data set after splitting 
 sample_size<- sample.split(adults, SplitRatio = 7/10) #Splitting the dataset into 70/30 ratio  
   
 train<-subset(adults, sample_size==T)  
@@ -344,7 +349,7 @@ pchisq(22, 2, lower.tail = FALSE)
 pchisq(79, 2, lower.tail = FALSE)
 pchisq(73, 2, lower.tail = FALSE)
 
-y <- income
+y <- adults$income
 
 # With interaction
 
@@ -388,9 +393,15 @@ hoslem.test(model.int$y, fitted(model.int))
 
 # Classification Report on Train  -----------------------------------------
 library(caret)
-model.train <- glm(income ~ . -relationship -native.country -education  + as.numeric(education) 
-                   + ocupation + sex + ocupation*sex, family = binomial(link = 'logit'), data = train)
+model.train <- glm(income ~ . -relationship -native.country -education  + as.numeric(education)
+                   + ocupation*sex, family = binomial(link = 'logit'), data = train)
 summary(model.train)
+
+
+model.int <- glm(income ~ . -relationship -native.country -education  + as.numeric(education) 
+                 + ocupation + sex + ocupation*sex, family = binomial(link='logit'), data = adults)
+summary(model.int)
+
 
 predictions <- predict(model.train, test, type = 'response')
 
@@ -404,7 +415,7 @@ accuracy_Test
 
 # ROC curve
 library(ROCR)
-ROCRpred <- prediction(predict, data_test$income)
+ROCRpred <- prediction(predictions, test$income)
 ROCRperf <- performance(ROCRpred, 'tpr', 'fpr')
 plot(ROCRperf, colorize = TRUE, text.adj = c(-0.2, 1.7)) 
 
