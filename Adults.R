@@ -79,6 +79,13 @@ adults <- adults %>%
                                                                 marital.status == "Married-civ-spouse", "Married", 
                                                               ifelse(marital.status == "Separated" | 
                                                                        marital.status == "Divorced", "Separated", "Widow")))))
+# Grouping Races
+adults <- adults %>%
+  mutate(race = factor(ifelse(race == "Amer-Indian-Eskimo" | race == "Asian-Pac-Islander", "Other",
+                              ifelse(race == "Other", "Other",
+                                     ifelse(race == "White", "White", "Black")))))
+
+
 ## Screening numeric variables
 summary(adults[ , numeric]) # capital.gain probably has missing values as '99,999'
 
@@ -102,7 +109,13 @@ ggplot(adults, aes(hours.per.week)) + geom_histogram()
 ggplot(adults, aes(race, hours.per.week)) + geom_boxplot()
 
 # Missing values
-vis_miss(adults[ , numeric])
+vis_miss(adults)
+miss <- c()
+for(i in 1:nrow(adults)) {
+  if(length(which(is.na(adults[i,]))) > 0) miss <- append(miss, i) 
+}
+adults <- adults[-miss, ]
+dim(adults)
 
 # Tests
 library(dplyr)
@@ -188,8 +201,8 @@ more.than.50 <- adults %>%
 
 more.than.50$income <- factor(more.than.50$income)
   
-  less.than.50 <- adults %>%
-    filter(income == '0')
+less.than.50 <- adults %>%
+  filter(income == '0')
   
 less.than.50$income <- factor(less.than.50$income)
   
@@ -227,7 +240,7 @@ chisq9$residuals
 # Multicolinearity check 
 library(corrr)
 
-model_vif <- glm(income ~., family = binomial('logit'), data = adults)
+model_vif <- glm(income ~. - education, family = binomial('logit'), data = adults)
 
 summary(model_vif)
 vif(model_vif)
@@ -235,7 +248,8 @@ vif(model_vif)
 # Marital status and relationship status VIF >10 so we are removing marital
 # status
 
-model_vif2 <- glm(income ~. -relationship, family = binomial('logit'), data = adults)
+model_vif2 <- glm(income ~. - education -relationship,
+                  family = binomial('logit'), data = adults)
 summary(model_vif2)
 vif(model_vif2)
 # after removing marital status no other variable presented with 
@@ -279,8 +293,8 @@ cat_plot(model_cat_plot, pred = marital.status, modx = race, interval = TRUE, ge
 
 
 # Model chosen for best interaction
-cat_plot(model_cat_plot, pred = ocupation, modx = sex, interval = TRUE, geom = 'line')
-interaction.plot(adults$ocupation, adults$sex, as.numeric(adults$income), plot.points = TRUE)
+cat_plot(model_cat_plot, pred = marital.status, modx = sex, interval = TRUE, geom = 'line')
+interaction.plot(adults$marital.status, adults$sex, as.numeric(adults$income), plot.points = TRUE)
 # Observable interaction between the occupation and income among genders
 
 # Dataset split 
@@ -304,18 +318,18 @@ nrow(test)
 stepwise_sel <- glm(income ~ .-relationship, family = binomial(link = 'logit'), data = adults)
 summary(stepwise_sel)
 
-stepwise_sel2 <- glm(income ~ .-relationship -native.country -education  + as.numeric(education), family = binomial(link='logit'), data = adults)
+stepwise_sel2 <- glm(income ~ .-relationship -education, family = binomial(link='logit'), data = adults)
 summary(stepwise_sel2)
 
 library(MASS)
-step.model <- stepAIC(stepwise_sel, direction = "backward")
+step.model <- stepAIC(stepwise_sel2, direction = "backward")
 summary(step.model)
 
 ##### Purposeful Selection Process #####
 
 # # Step 1 - Defining individual explanatory variables
 # attach(adults)
-y <- income
+# y <- income
 # model1 <- glm(y ~ age, family = binomial(link = 'logit'))
 # summary(model1)
 # pchisq(2537, 1, lower.tail = FALSE)
@@ -327,73 +341,73 @@ y <- income
 # pchisq(2591, 1, lower.tail = FALSE)
 #
 # Step 2 - Backwards Elimination
-model4 <- glm(y ~ age + sex, family = binomial(link = 'logit'))
-summary(model4)
-pchisq(2248, 1, lower.tail = FALSE)
-model5 <- glm(y ~ age + hours.per.week, family = binomial(link = 'logit'))
-summary(model5)
-pchisq(2595, 1, lower.tail = FALSE)
-model6 <- glm(y ~ sex + hours.per.week, family = binomial(link = 'logit'))
-summary(model6)
-pchisq(1744, 1, lower.tail = FALSE)
-model7 <- glm(y ~ age + sex + hours.per.week, family = binomial(link = 'logit'))
-summary(model7)
-pchisq(1811, 1, lower.tail = FALSE)
-pchisq(1464, 1, lower.tail = FALSE)
-pchisq(2367, 1, lower.tail = FALSE)
+# model4 <- glm(y ~ age + sex, family = binomial(link = 'logit'))
+# summary(model4)
+# pchisq(2248, 1, lower.tail = FALSE)
+# model5 <- glm(y ~ age + hours.per.week, family = binomial(link = 'logit'))
+# summary(model5)
+# pchisq(2595, 1, lower.tail = FALSE)
+# model6 <- glm(y ~ sex + hours.per.week, family = binomial(link = 'logit'))
+# summary(model6)
+# pchisq(1744, 1, lower.tail = FALSE)
+# model7 <- glm(y ~ age + sex + hours.per.week, family = binomial(link = 'logit'))
+# summary(model7)
+# pchisq(1811, 1, lower.tail = FALSE)
+# pchisq(1464, 1, lower.tail = FALSE)
+# pchisq(2367, 1, lower.tail = FALSE)
 # 
 # Step 4 - Checking for Interactions
-model8 <- glm(y ~ age + sex + hours.per.week + age*sex, family = binomial(link = 'logit'))
-summary(model8)
-pchisq(64, 1, lower.tail = FALSE)
-model9 <- glm(y ~ age + sex + hours.per.week + age*hours.per.week, family = binomial(link = 'logit'))
-summary(model9)
-pchisq(7, 1, lower.tail = FALSE)
-model10 <- model10 <- glm(y ~ age + sex + hours.per.week + sex*hours.per.week, family = binomial(link = 'logit'))
-summary(model10)
-pchisq(13, 1, lower.tail = FALSE)
-model11 <- glm(y ~ age + sex + hours.per.week +
-                 age*sex +
-                 age*hours.per.week +
-                 sex*hours.per.week, family = binomial(link = 'logit'))
-summary(model11)
-pchisq(22, 2, lower.tail = FALSE)
-pchisq(79, 2, lower.tail = FALSE)
-pchisq(73, 2, lower.tail = FALSE)
-
-y <- adults$income
+# model8 <- glm(y ~ age + sex + hours.per.week + age*sex, family = binomial(link = 'logit'))
+# summary(model8)
+# pchisq(64, 1, lower.tail = FALSE)
+# model9 <- glm(y ~ age + sex + hours.per.week + age*hours.per.week, family = binomial(link = 'logit'))
+# summary(model9)
+# pchisq(7, 1, lower.tail = FALSE)
+# model10 <- model10 <- glm(y ~ age + sex + hours.per.week + sex*hours.per.week, family = binomial(link = 'logit'))
+# summary(model10)
+# pchisq(13, 1, lower.tail = FALSE)
+# model11 <- glm(y ~ age + sex + hours.per.week +
+#                  age*sex +
+#                  age*hours.per.week +
+#                  sex*hours.per.week, family = binomial(link = 'logit'))
+# summary(model11)
+# pchisq(22, 2, lower.tail = FALSE)
+# pchisq(79, 2, lower.tail = FALSE)
+# pchisq(73, 2, lower.tail = FALSE)
+# 
+# y <- adults$income
 
 # With interaction
 
-model.int <- glm(income ~ . -relationship -native.country -education  + as.numeric(education) 
-                 + ocupation + sex + ocupation*sex, family = binomial(link='logit'), data = adults)
+model.int <- glm(income ~ . -relationship -education +marital.status*sex,
+                 family = binomial(link='logit'), data = adults)
 summary(model.int)
 
 # without interaction
-model.int2 <- glm(income ~ . -relationship -native.country -education  + as.numeric(education) 
-                  + ocupation + sex, family = binomial(link='logit'), data = adults)
-summary(model.int2)
+model.noint <- glm(income ~ . -relationship -education, 
+                   family = binomial(link='logit'), data = adults)
+summary(model.noint)
 
 
 # Likelihood ratio test 
 require(lmtest)
-lrtest(model.int2, model.int)
+lrtest(model.noint, model.int)
 
 # Anova
 # H0 = interaction betas = 0
 # Ha = atleast one interaction beta not equals to 0
-anova(model.int2, model.int, test = 'Chisq')
+anova(model.noint, model.int, test = 'Chisq')
 # Reject Ho p-value < 0.05
 
 # Wald test 
-waldtest(model.int2, model.int)
+waldtest(model.noint, model.int)
 # p-value = 0.077, is slight evidence 
 # of being statistically meaningful for the model
 
 # Deviance Goodness of Fit
 # H0 = Model correctly specified 
 # Ha = Saturated model is correctly specified
-pchisq(30240, 45174, lower.tail = FALSE)
+pchisq(29767, 45171, lower.tail = FALSE)
 # Fail to reject null hypothesis because p-value > 0.05
 
 # Hosmer-Lemeshow Test
@@ -401,19 +415,13 @@ library(ResourceSelection)
 # H0 = interaction betas = 0
 # Ha = atleast one interaction beta not equals to 0
 hoslem.test(model.int$y, fitted(model.int))
-# Reject H0
+# Reject Null hypothesis
 
 # Classification Report on Train  -----------------------------------------
 library(caret)
-model.train <- glm(income ~ . -relationship -native.country -education  + as.numeric(education)
-                   + ocupation*sex, family = binomial(link = 'logit'), data = train)
+model.train <- glm(income ~ . -relationship -education +marital.status*sex,
+                   family = binomial(link = 'logit'), data = train)
 summary(model.train)
-
-
-model.int <- glm(income ~ . -relationship -native.country -education  + as.numeric(education) 
-                 + ocupation + sex + ocupation*sex, family = binomial(link='logit'), data = adults)
-summary(model.int)
-
 
 predictions <- predict(model.train, test, type = 'response')
 
@@ -425,13 +433,17 @@ table_mat
 accuracy_Test <- sum(diag(table_mat)) / sum(table_mat)
 accuracy_Test
 
+model_spec <- table_mat[1, 1]/sum(table_mat[1,1], table_mat[1,2])
+model_spec
+
+model_sens <- table_mat[2, 2]/sum(table_mat[2,2], table_mat[2,1])
+model_sens
+
 # ROC curve
 library(ROCR)
 ROCRpred <- prediction(predictions, test$income)
 ROCRperf <- performance(ROCRpred, 'tpr', 'fpr')
-plot(ROCRperf, colorize = TRUE, text.adj = c(-0.2, 1.7)) 
-
-
+plot(ROCRperf, colorize = TRUE, text.adj = c(-0.2, 1.7))
 
 
 # Baseline Model ----------------------------------------------------------
