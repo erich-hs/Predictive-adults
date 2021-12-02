@@ -240,7 +240,7 @@ chisq9$residuals
 # Multicolinearity check 
 library(corrr)
 
-model_vif <- glm(income ~. - education + as.numeric(education), family = binomial('logit'), data = adults)
+model_vif <- glm(income ~. - education, family = binomial('logit'), data = adults)
 
 summary(model_vif)
 vif(model_vif)
@@ -248,7 +248,7 @@ vif(model_vif)
 # Marital status and relationship status VIF >10 so we are removing marital
 # status
 
-model_vif2 <- glm(income ~. - education + as.numeric(education) -relationship,
+model_vif2 <- glm(income ~. - education -relationship,
                   family = binomial('logit'), data = adults)
 summary(model_vif2)
 vif(model_vif2)
@@ -262,7 +262,7 @@ library(ggplot2)
 str(adults$income)
 str(as.factor(adults$income))
 
-model_cat_plot <- glm(income ~. -relationship, family = binomial(link = 'logit'), data = adults)
+model_cat_plot <- glm(income ~. -relationship -education + as.numeric(education), family = binomial(link = 'logit'), data = adults)
 
 interaction.plot(adults$relationship, adults$sex, as.numeric(adults$income))
 cat_plot(model_cat_plot, pred = ocupation, modx = sex, interval = TRUE, geom = 'line')
@@ -315,10 +315,10 @@ nrow(test)
 
 # Select explanatory variables
 # Backwards elimination without interaction
-stepwise_sel <- glm(income ~ .-relationship, family = binomial(link = 'logit'), data = adults)
+stepwise_sel <- glm(income ~ .-relationship -education + as.numeric(education), family = binomial(link = 'logit'), data = adults)
 summary(stepwise_sel)
 
-stepwise_sel2 <- glm(income ~ .-relationship -education, family = binomial(link='logit'), data = adults)
+stepwise_sel2 <- glm(income ~ .-relationship -education + as.numeric(education), family = binomial(link='logit'), data = adults)
 summary(stepwise_sel2)
 
 library(MASS)
@@ -414,7 +414,7 @@ pchisq(29767, 45171, lower.tail = FALSE)
 library(ResourceSelection)
 # H0 = interaction betas = 0
 # Ha = atleast one interaction beta not equals to 0
-hoslem.test(model.int$y, fitted(model.int))
+hoslem.test(model.int$y, fitted(model.int), g = 5000)
 # Reject Null hypothesis
 
 # Classification Report on Train with interactions -----------------------------------------
@@ -447,7 +447,6 @@ plot(ROCRperf, colorize = TRUE, text.adj = c(-0.2, 1.7))
 
 
 # Classification report on train for model without interactions -----------
-
 library(caret)
 model.train.noint <- glm(income ~ . -relationship -education,
                          family = binomial(link = 'logit'), data = train)
@@ -475,6 +474,11 @@ ROCRpred.noint <- prediction(predictions.noint, test$income)
 ROCRperf.noint <- performance(ROCRpred.noint, 'tpr', 'fpr')
 plot(ROCRperf.noint, colorize = TRUE, text.adj = c(-0.2, 1.7))
 
+# Area under the ROC curve
+auc(test$income, predictions.noint)
+auc(test$income, predictions)
+
+# Lack of fit test - Anova
 
 # Baseline Model ----------------------------------------------------------
 ##### Income based on sex and race 
