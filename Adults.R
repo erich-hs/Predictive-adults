@@ -195,7 +195,7 @@ chisq7$residuals
 
 adults$income <- factor(adults$income)
 
-# Divide data based on income greater or less than 50G
+# Divide data based on income greater or less than 50K
 more.than.50 <- adults %>% 
   filter(income == '1')
 
@@ -206,27 +206,21 @@ less.than.50 <- adults %>%
   
 less.than.50$income <- factor(less.than.50$income)
   
-more.than.50 %>% select(income, sex) %>% summary()
-less.than.50 %>% select(income, sex) %>% summary()
-
-
 # Comparative Statistical Tests -------------------------------------------
 # Variance tests conducted on both samples
 var.test(more.than.50$hours.per.week ~ more.than.50$sex) # variance test for hours.per.week vs. sex for adults who earned more than 50k
 var.test(less.than.50$age ~ less.than.50$sex) # variance test for age vs. sex for adults who earned less than 50k  
 
-t.test.50.more.hpw.sex<- t.test(hours.per.week ~ sex, data = more.than.50, var.equal = TRUE)
-t.test.50.less.hpw.sex<- t.test(hours.per.week ~ sex, data = less.than.50, var.equal = TRUE)
-
-t.test.50.more.age.sex<- t.test(age ~ sex, data = more.than.50, var.equal = TRUE)
-t.test.50.less.age.sex<- t.test(age ~ sex, data = less.than.50, var.equal = TRUE)
-
 # Conducted t-tests on both samples
-t.test.50.less.hpw.sex #t-test for hours.per.week and sex for adults who earned less than 50k
-t.test.50.more.hpw.sex #t-test for hours.per.week and sex for adults who earned more than 50k
+#t-test for hours.per.week and sex for adults who earned more than 50k
+t.test(hours.per.week ~ sex, data = more.than.50, var.equal = TRUE)
+#t-test for hours.per.week and sex for adults who earned less than 50k
+t.test(hours.per.week ~ sex, data = less.than.50, var.equal = TRUE)
 
-t.test.50.less.age.sex #t-test for age and sex for adults who earned less than 50k
-t.test.50.more.age.sex #t-test for age and sex for adults who earned more than 50k
+#t-test for age and sex for adults who earned more than 50k
+t.test(age ~ sex, data = more.than.50, var.equal = TRUE)
+#t-test for age and sex for adults who earned less than 50k
+t.test(age ~ sex, data = less.than.50, var.equal = TRUE)
 
 # Chi-sqaured test 
 chisq8 <- chisq.test(more.than.50$sex, more.than.50$hours.per.week)
@@ -264,32 +258,32 @@ str(as.factor(adults$income))
 
 model_cat_plot <- glm(income ~. -relationship -education + as.numeric(education), family = binomial(link = 'logit'), data = adults)
 
-interaction.plot(adults$relationship, adults$sex, as.numeric(adults$income))
-cat_plot(model_cat_plot, pred = ocupation, modx = sex, interval = TRUE, geom = 'line')
-
-interaction.plot(adults$education, adults$sex, as.numeric(adults$income))
-cat_plot(model_cat_plot, pred = education, modx = sex, interval = TRUE, geom = 'line')
-
-interaction.plot(adults$education, adults$race, as.numeric(adults$income))
-cat_plot(model_cat_plot, pred = education, modx = race, interval = TRUE, geom = 'line')
-
-interaction.plot(adults$ocupation, adults$sex, as.numeric(adults$income))
-cat_plot(model_cat_plot, pred = ocupation, modx = sex, interval = TRUE, geom = 'line')
-
-interaction.plot(adults$ocupation, adults$race, as.numeric(adults$income))
-cat_plot(model_cat_plot, pred = ocupation, modx = race, interval = TRUE, geom = 'line')
-
-interaction.plot(adults$workclass, adults$sex, as.numeric(adults$income))
-cat_plot(model_cat_plot, pred = workclass, modx = sex, interval = TRUE, geom = 'line')
-
-interaction.plot(adults$workclass, adults$race, as.numeric(adults$income))
-cat_plot(model_cat_plot, pred = workplace, modx = race, interval = TRUE, geom = 'line')
-
-interaction.plot(adults$marital.status, adults$sex, as.numeric(adults$income))
-cat_plot(model_cat_plot, pred = marital.status, modx = sex, interval = TRUE, geom = 'line')
-
-interaction.plot(adults$marital.status, adults$race, as.numeric(adults$income))
-cat_plot(model_cat_plot, pred = marital.status, modx = race, interval = TRUE, geom = 'line')
+# interaction.plot(adults$relationship, adults$sex, as.numeric(adults$income))
+# cat_plot(model_cat_plot, pred = ocupation, modx = sex, interval = TRUE, geom = 'line')
+# 
+# interaction.plot(adults$education, adults$sex, as.numeric(adults$income))
+# cat_plot(model_cat_plot, pred = education, modx = sex, interval = TRUE, geom = 'line')
+# 
+# interaction.plot(adults$education, adults$race, as.numeric(adults$income))
+# cat_plot(model_cat_plot, pred = education, modx = race, interval = TRUE, geom = 'line')
+# 
+# interaction.plot(adults$ocupation, adults$sex, as.numeric(adults$income))
+# cat_plot(model_cat_plot, pred = ocupation, modx = sex, interval = TRUE, geom = 'line')
+# 
+# interaction.plot(adults$ocupation, adults$race, as.numeric(adults$income))
+# cat_plot(model_cat_plot, pred = ocupation, modx = race, interval = TRUE, geom = 'line')
+# 
+# interaction.plot(adults$workclass, adults$sex, as.numeric(adults$income))
+# cat_plot(model_cat_plot, pred = workclass, modx = sex, interval = TRUE, geom = 'line')
+# 
+# interaction.plot(adults$workclass, adults$race, as.numeric(adults$income))
+# cat_plot(model_cat_plot, pred = workplace, modx = race, interval = TRUE, geom = 'line')
+# 
+# interaction.plot(adults$marital.status, adults$sex, as.numeric(adults$income))
+# cat_plot(model_cat_plot, pred = marital.status, modx = sex, interval = TRUE, geom = 'line')
+# 
+# interaction.plot(adults$marital.status, adults$race, as.numeric(adults$income))
+# cat_plot(model_cat_plot, pred = marital.status, modx = race, interval = TRUE, geom = 'line')
 
 
 # Model chosen for best interaction
@@ -475,6 +469,7 @@ ROCRperf.noint <- performance(ROCRpred.noint, 'tpr', 'fpr')
 plot(ROCRperf.noint, colorize = TRUE, text.adj = c(-0.2, 1.7))
 
 # Area under the ROC curve
+library(pROC)
 auc(test$income, predictions.noint)
 auc(test$income, predictions)
 
